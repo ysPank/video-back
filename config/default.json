@@ -1,0 +1,22 @@
+{
+  "production": false,
+  "server": {
+    "timeOut": 30000,
+    "port": 3001
+  },
+  "client": {
+    "url": "market.dev.cleveroad.com"
+  },
+  "logging": {
+    "level": "debug"
+  },
+  "redis": {
+    "prefix": "prefix_",
+    "host": "127.0.0.1",
+    "port": "6379"
+  },
+  "jwt": {
+    "key": "JWT_SIGN_KEY",
+    "lifeTime": 84600
+  }
+}
