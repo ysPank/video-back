@@ -1,29 +1,25 @@
-import { BasicHandler } from '../../base/BasicHandler';
+import BaseCRUD from '../../base/BaseCRUD';
 import { UserDto } from '../../models/users';
-import { HttpStatusCodes } from '../../constants/statusCodes';
 import { generateCollection } from '../../base/CollectionDto';
+import { RouteParams } from '../../base/RouteParams';
 
-export default class UsersRoutesHandler extends BasicHandler {
+export default class UsersRoutesHandler extends BaseCRUD {
   constructor(container) {
     super();
     this.container = container;
     this.apiRoot = '/users';
+    this.model = 'User';
   }
 
   setup() {
-    const controller = this.container.UsersController;
+    const { container, model } = this;
+    const controller = container.UsersController;
 
-    this.addRoute({
-      path: '/',
-      method: 'get',
-      summary: 'Get user list API',
-      description: 'Get users list',
-      tags: ['Users'],
-      auth: false,
-      consumes: this.container.PaginationSchema,
-      produces: generateCollection(UserDto).schema,
-      responseStatus: HttpStatusCodes.OK,
-      handler: controller.getList.bind(controller),
-    });
+    this.addGetEntitiesListRoute(new RouteParams(
+      container.PaginationSchema,
+      generateCollection(UserDto).schema,
+      controller,
+      model
+    ));
   }
 }

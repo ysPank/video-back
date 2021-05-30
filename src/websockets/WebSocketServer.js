@@ -1,18 +1,13 @@
 const io = require('socket.io')({
   path: '/socket'
 });
-import SocketFactory from './SocketEventsFactory';
+import { SocketEvents } from '../constants/socketEvents';
 
 export default class WebSocketServer {
   constructor({ UsersService }) {
     this.usersService = UsersService;
 
     this.pool = [];
-  }
-
-  notifyUser(id, ...rest) {
-    const socket = this.userPool[id];
-    socket.send(SocketFactory(...rest));
   }
 
   closeConnection({ role, id } = {}) {
@@ -27,8 +22,16 @@ export default class WebSocketServer {
   init(server) {
     this.io = io.attach(server);
 
-    this.io.on('connection', () => {
-      console.log('conntected');
+    this.io.on('connection', (socket) => {
+      const user = this.usersService.handleUserCreation(socket.id);
+
+      socket.broadcast.emit({ event: SocketEvents.USER_JOINED, data: user });
+      socket.emit({ event: SocketEvents.MY_DATA, data: user });
+
+      socket.on('disconnecting', () => {
+        this.usersService.deleteUser(user.id);
+        socket.broadcast.emit({ event: SocketEvents.USER_LEFT, data: user });
+      });
     });
   }
 }

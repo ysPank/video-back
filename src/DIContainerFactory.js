@@ -49,8 +49,7 @@ export class DIContainerFactory {
     // Class loader. Collect pattern-like dependencies
     container
       .loadModules([
-        'controllers/**/*Controller.js',
-        'services/**/*Service.js',
+        'controllers/*Controller.js',
         'services/*Service.js',
         'routes/**/*RoutesHandler.js',
         'schemas/**/*Schema.js',
