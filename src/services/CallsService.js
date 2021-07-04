@@ -13,6 +13,23 @@ export default class CallsService {
     this.usersService = UsersService;
   }
 
+  getById(id) {
+    return this.calls.find(call => call.id === id);
+  }
+
+  getIndexById(id) {
+    return this.calls.findIndex(call => call.id === id);
+  }
+
+  updateCallStatus(id, status) {
+    const index = this.getIndexById(id);
+
+    const updated = Object.assign(this.calls[index], { status });
+    this.calls[index] = updated;
+
+    return updated;
+  }
+
   /**
    * Create invitation
    * @param {string} body.callerId
@@ -60,7 +77,7 @@ export default class CallsService {
    * @returns {CallInstance}
    */
   cancelCall(id) {
-    const removedIndex = this.calls.findIndex(({ id: callId }) => callId === id);
+    const removedIndex = this.getIndexById(id);
     const removedCall = this.calls[removedIndex];
 
     this.calls.splice(removedIndex, 1);

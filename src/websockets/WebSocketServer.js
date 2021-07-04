@@ -2,6 +2,7 @@ const io = require('socket.io')({
   path: '/socket'
 });
 
+import { CallStatuses } from '../constants/callStatuses';
 import { SocketEvents } from '../constants/socketEvents';
 
 export default class WebSocketServer {
@@ -65,6 +66,16 @@ export default class WebSocketServer {
         [calleeId, callerId]
           .map(userId => this.usersService.updateUserStatus(userId))
           .forEach(updated => this.broadcastEvent(SocketEvents.USER_UPDATED, updated));
+      });
+
+      socket.on(SocketEvents.ACCEPTED_CALL, ({ id }) => {
+        const call = this.callsService.updateCallStatus(id, CallStatuses.APPROVED);
+
+        console.log(call);
+
+        const { caller, callee } = call;
+
+        [caller, callee].forEach(({ socketId }) => this.emitEvent(socketId, SocketEvents.ACCEPTED_CALL, call));
       });
 
       socket.on('disconnecting', () => {
