@@ -1,5 +1,5 @@
 export const SocketEvents =  {
-  /*  */
+  /* USER */
   USER_JOINED: 'USER_JOINED',
   USER_LEFT: 'USER_LEFT',
   MY_DATA: 'MY_DATA',
@@ -8,7 +8,6 @@ export const SocketEvents =  {
   REQUESTED_CALL: 'REQUESTED_CALL',
   ACCEPTED_CALL: 'ACCEPTED_CALL',
   DECLINED_CALL: 'DECLINED_CALL',
-  GOT_USER_MEDIA: 'DECLINED_CALL',
   CANCEL_CALL: 'CANCEL_CALL',
   /* RTC */
   OFFER: 'OFFER',
@@ -17,4 +16,7 @@ export const SocketEvents =  {
   /* ERRORS */
   PARSE_ERROR: 'PARSE_ERROR',
   INVALID_EVENT: 'INVALID_EVENT',
+  /* NATIVE */
+  CONNECT: 'connection',
+  DISCONNECT: 'disconnecting',
 };

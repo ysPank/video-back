@@ -28,13 +28,17 @@ export default class UsersService {
 
   /**
    * Add new user
-   * @param socketId
+   * @param {string} socketId
+   * @param {string} [userName] Previous username
   */
-  handleUserCreation(socketId) {
+  handleUserCreation(socketId, userName) {
+    const existingNames = this.getNames();
     const model = {
       id: uuid(),
       socketId,
-      name: generateName(Object.values(this.users).map(({ name } = {}) => name)),
+      name: (userName && !(existingNames.includes(userName)))
+        ? userName
+        : generateName(existingNames),
       status: UserStatuses.AVAILABLE,
     };
 
@@ -51,8 +55,9 @@ export default class UsersService {
   }
 
   /**
-   * Get user by socketId
+   * Update user by id
    * @param id
+   * @returns {UserInstance}
   */
   updateUserStatus(id, status = UserStatuses.AVAILABLE) {
     if(this.users[id]) {
@@ -69,5 +74,9 @@ export default class UsersService {
   */
   deleteUser(id) {
     delete this.users[id];
+  }
+
+  getNames() {
+    return Object.values(this.users).map(({ name } = {}) => name);
   }
 }

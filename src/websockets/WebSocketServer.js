@@ -2,13 +2,17 @@ const io = require('socket.io')({
   path: '/socket'
 });
 
-import { CallStatuses } from '../constants/callStatuses';
 import { SocketEvents } from '../constants/socketEvents';
+import { acceptCall } from './handlers/acceptCall';
+import { declineCall } from './handlers/declineCall';
+import { handleDisconnect } from './handlers/handleDisconnect';
+import { handleRequestCall } from './handlers/requestCall';
 
 export default class WebSocketServer {
-  constructor({ UsersService, CallsService }) {
+  constructor({ UsersService, CallsService, TwilioService }) {
     this.usersService = UsersService;
     this.callsService = CallsService;
+    this.twilioService = TwilioService;
   }
 
   /**
@@ -33,55 +37,23 @@ export default class WebSocketServer {
   init(server) {
     this.io = io.attach(server);
 
-    this.io.on('connection', (socket) => {
-      const user = this.usersService.handleUserCreation(socket.id);
+    this.io.on(SocketEvents.CONNECT, (socket) => {
+      const user = this.usersService.handleUserCreation(socket.id, socket.request._query?.name);
 
       socket.broadcast.emit(SocketEvents.USER_JOINED, user);
       socket.emit(SocketEvents.MY_DATA, user);
 
-      /**
-       * Request call
-       */
-      socket.on(SocketEvents.REQUESTED_CALL, ({ calleeId }) => {
-        const callerId = user.id;
-        const createdCall = this.callsService.createPendingCall({ callerId, calleeId });
+      socket.on(SocketEvents.USER_UPDATED, handleRequestCall.bind(this, user));
 
-        if (!createdCall) return socket.emit(SocketEvents.DECLINED_CALL);
+      socket.on(SocketEvents.REQUESTED_CALL, handleRequestCall.bind(this, user));
+      socket.on(SocketEvents.DECLINED_CALL, declineCall.bind(this, user));
+      socket.on(SocketEvents.ACCEPTED_CALL, acceptCall.bind(this, user));
 
-        [this.usersService.getById(callerId), this.usersService.getById(calleeId)]
-          .forEach((updated, _, [caller, callee]) => {
-            this.broadcastEvent(SocketEvents.USER_UPDATED, updated);
-            this.emitEvent(updated.socketId, SocketEvents.REQUESTED_CALL, Object.assign(createdCall, { caller, callee }));
-          });
-      });
+      socket.on(SocketEvents.OFFER, payload => this.emitEvent(payload.target, SocketEvents.OFFER, payload));
+      socket.on(SocketEvents.ANSWER, payload => this.emitEvent(payload.target, SocketEvents.ANSWER, payload));
+      socket.on(SocketEvents.ICE_CANDIDATE, ({ candidate, target }) => this.emitEvent(target, SocketEvents.ICE_CANDIDATE, candidate));
 
-      /**
-       * Handle decline or cancel call
-       */
-      socket.on(SocketEvents.DECLINED_CALL, ({ id }) => {
-        const { callerId, calleeId } = this.callsService.cancelCall(id);
-
-        this.emitEvent([callerId, calleeId].find(userId => userId !== user.id).socketId, SocketEvents.DECLINED_CALL);
-
-        [calleeId, callerId]
-          .map(userId => this.usersService.updateUserStatus(userId))
-          .forEach(updated => this.broadcastEvent(SocketEvents.USER_UPDATED, updated));
-      });
-
-      socket.on(SocketEvents.ACCEPTED_CALL, ({ id }) => {
-        const call = this.callsService.updateCallStatus(id, CallStatuses.APPROVED);
-
-        console.log(call);
-
-        const { caller, callee } = call;
-
-        [caller, callee].forEach(({ socketId }) => this.emitEvent(socketId, SocketEvents.ACCEPTED_CALL, call));
-      });
-
-      socket.on('disconnecting', () => {
-        this.usersService.deleteUser(user.id);
-        socket.broadcast.emit(SocketEvents.USER_LEFT, { data: user });
-      });
+      socket.on(SocketEvents.DISCONNECT, handleDisconnect.bind(this, user));
     });
   }
 }

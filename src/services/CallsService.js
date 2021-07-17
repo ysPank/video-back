@@ -5,11 +5,7 @@ import { UserStatuses } from '../constants/userStatuses';
 
 export default class CallsService {
   constructor({ UsersService }) {
-    /**
-     * @typedef Array<CallInstance>
-     */
     this.calls = [];
-    this.usersService = UsersService;
     this.usersService = UsersService;
   }
 
@@ -63,6 +59,27 @@ export default class CallsService {
   }
 
   /**
+   * Check if users belong to call
+   * @param {Array<string>}
+   * @returns {boolean}
+   */
+  checkBelongToCall(id, ids) {
+    const call = this.calls[id];
+    if (!call) return;
+
+    return ids.include(call.calleeId) || ids.include(call.callerId);
+  }
+
+  /**
+   * Get call by participant
+   * @param {string} id User id
+   * @returns {boolean}
+   */
+  getCallByParticipant(id) {
+    return this.calls.find(({ callerId, calleeId }) => calleeId === id || callerId === id);
+  }
+
+  /**
    * Clear all invitations by user
    * @param {string} id
    * @returns {void}
@@ -81,6 +98,7 @@ export default class CallsService {
     const removedCall = this.calls[removedIndex];
 
     this.calls.splice(removedIndex, 1);
+
     return removedCall;
   }
 }
