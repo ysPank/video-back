@@ -7,6 +7,7 @@ import { acceptCall } from './handlers/acceptCall';
 import { declineCall } from './handlers/declineCall';
 import { handleDisconnect } from './handlers/handleDisconnect';
 import { handleRequestCall } from './handlers/requestCall';
+import { updateName } from './handlers/updateName';
 
 export default class WebSocketServer {
   constructor({ UsersService, CallsService, TwilioService }) {
@@ -43,7 +44,7 @@ export default class WebSocketServer {
       socket.broadcast.emit(SocketEvents.USER_JOINED, user);
       socket.emit(SocketEvents.MY_DATA, user);
 
-      socket.on(SocketEvents.USER_UPDATED, handleRequestCall.bind(this, user));
+      socket.on(SocketEvents.USER_UPDATED, updateName.bind(this, user, socket));
 
       socket.on(SocketEvents.REQUESTED_CALL, handleRequestCall.bind(this, user));
       socket.on(SocketEvents.DECLINED_CALL, declineCall.bind(this, user));

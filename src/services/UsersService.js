@@ -59,6 +59,19 @@ export default class UsersService {
    * @param id
    * @returns {UserInstance}
   */
+  updateUserName(id, name) {
+    if(this.users[id]) {
+      this.users[id].name = name;
+    }
+
+    return this.users[id];
+  }
+
+  /**
+   * Update user by id
+   * @param id
+   * @returns {UserInstance}
+  */
   updateUserStatus(id, status = UserStatuses.AVAILABLE) {
     if(this.users[id]) {
       this.users[id].status = status;

@@ -1,17 +1,15 @@
 import * as Joi from 'joi';
+
+import { NAME_MAX_LENGTH } from '../constants/validations';
 import { AppSchema } from '../utils/validation/AppSchema';
 
 export default class ChangeNameSchema extends AppSchema {
-
-  constructor() {
-    super();
-
-  }
-
   get body() {
     return Joi.object()
       .keys({
-        name: Joi.string()
+        name: Joi
+          .string()
+          .max(NAME_MAX_LENGTH)
       });
   }
 }

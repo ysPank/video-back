@@ -16,6 +16,7 @@ export const SocketEvents =  {
   /* ERRORS */
   PARSE_ERROR: 'PARSE_ERROR',
   INVALID_EVENT: 'INVALID_EVENT',
+  CUSTOM_ERROR: 'CUSTOM_ERROR',
   /* NATIVE */
   CONNECT: 'connection',
   DISCONNECT: 'disconnecting',
