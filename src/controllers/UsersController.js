@@ -8,7 +8,7 @@ export default class UsersController {
   }
 
   async getList({ query }) {
-    const users = this.usersService.getList(query), count = this.usersService.getCount();
+    const users = this.usersService.getList(query), count = this.usersService.count;
 
     return new (generateCollection(UserDto))(users, PaginationHelper.buildPagination(query, count));
   }

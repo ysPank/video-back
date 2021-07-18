@@ -30,9 +30,3 @@ server.listen(port, () => {
   }
 });
 
-// write socketId + userName to redis, for MVP probably can use array
-// manage redis/pool on connects/disconnects
-// send socket event if pool updated, fetch array on api
-// events list
-//   status onCall updated
-//   join/disconnect
