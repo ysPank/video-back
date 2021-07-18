@@ -18,5 +18,9 @@
   "jwt": {
     "key": "JWT_SIGN_KEY",
     "lifeTime": 84600
+  },
+  "twilio": {
+    "SID": "AC111eeee111eeee111eee1e1e1e1e1e1e",
+    "token": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
   }
 }

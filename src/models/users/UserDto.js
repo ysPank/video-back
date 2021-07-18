@@ -1,7 +1,9 @@
+import { UserStatuses } from '../../constants/userStatuses';
+
 export class UserDto {
   constructor(user) {
     this.name = user.name;
-    this.onCall = user.onCall;
+    this.status = user.status;
     this.id = user.id;
   }
 
@@ -11,7 +13,7 @@ export class UserDto {
       type: 'object',
       required: [
         'name',
-        'onCall',
+        'status',
       ],
       properties: {
         id: {
@@ -22,9 +24,9 @@ export class UserDto {
           type: 'string',
           example: 'Riley Reid'
         },
-        onCall: {
-          type: 'boolean',
-          example: true,
+        status: {
+          type: 'number',
+          example: UserStatuses.AVAILABLE,
         },
       }
     };

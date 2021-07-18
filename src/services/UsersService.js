@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 
 import { paginateList } from '../utils/helpers/PaginateList';
 import { generateName } from '../utils/helpers/NameGenerator';
+import { UserStatuses } from '../constants/userStatuses';
 
 export default class UsersService {
   constructor() {
@@ -19,6 +20,7 @@ export default class UsersService {
 
   /**
    * Get count of users
+   * @returns {number}
   */
   get count() {
     return Object.values(this.users).length;
@@ -26,14 +28,18 @@ export default class UsersService {
 
   /**
    * Add new user
-   * @param socketId
+   * @param {string} socketId
+   * @param {string} [userName] Previous username
   */
-  handleUserCreation(socketId) {
+  handleUserCreation(socketId, userName) {
+    const existingNames = this.getNames();
     const model = {
       id: uuid(),
       socketId,
-      name: generateName(Object.values(this.users).map(({ name } = {}) => name)),
-      onCall: false,
+      name: (userName && !(existingNames.includes(userName)))
+        ? userName
+        : generateName(existingNames),
+      status: UserStatuses.AVAILABLE,
     };
 
     this.users[model.id] = model;
@@ -41,10 +47,49 @@ export default class UsersService {
   }
 
   /**
-   * Delete user by id
+   * Get user by socketId
    * @param id
+  */
+  getById(id) {
+    return this.users[id];
+  }
+
+  /**
+   * Update user by id
+   * @param id
+   * @returns {UserInstance}
+  */
+  updateUserName(id, name) {
+    if(this.users[id]) {
+      this.users[id].name = name;
+    }
+
+    return this.users[id];
+  }
+
+  /**
+   * Update user by id
+   * @param id
+   * @returns {UserInstance}
+  */
+  updateUserStatus(id, status = UserStatuses.AVAILABLE) {
+    if(this.users[id]) {
+      this.users[id].status = status;
+    }
+
+    return this.users[id];
+  }
+
+  /**
+   * Delete user by id
+   * @param {string} id
+   * @returns {void}
   */
   deleteUser(id) {
     delete this.users[id];
+  }
+
+  getNames() {
+    return Object.values(this.users).map(({ name } = {}) => name);
   }
 }

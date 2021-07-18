@@ -5,7 +5,7 @@ import { AppSchema } from '../utils/validation/AppSchema';
 import { SwaggerBuilder } from '../utils/swagger';
 import { ResponseMapper } from '../utils/http/ResponseMapper';
 import { HttpStatusCodes } from '../constants/statusCodes';
-const API_URL = '/api';
+import { API_URL } from '../constants';
 
 export class AppBuilder {
   constructor({ LoggerFactory }) {
@@ -59,12 +59,12 @@ export class AppBuilder {
         }
       });
       // insert beforeHooks into chain
-      chain = chain.concat(route.beforeHooks);
+      chain = chain.concat(route.beforeHooks || []);
 
       this.router[route.method](`${this.apiUrl}${path}${route.path}`, chain, async(request, response, next) => {
         try {
           const output = await route.handler(request);
-          console.log(' Pass outpus');
+          console.log('Pass outpus');
           const jsonString = ResponseMapper.compile(route.produces, output);
 
           response
